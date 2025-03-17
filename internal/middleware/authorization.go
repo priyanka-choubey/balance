@@ -23,7 +23,7 @@ func Authorization(next http.Handler) http.Handler {
 			return
 		}
 
-		var database *tools.DatabaseInterface
+		var database *tools.MySqlDatabase
 		database, err = tools.NewDatabase()
 		if err != nil {
 			api.InternalErrorHandler(w)
@@ -31,7 +31,11 @@ func Authorization(next http.Handler) http.Handler {
 		}
 
 		var loginDetails *tools.LoginDetails
-		loginDetails = (*database).GetUserLoginDetails(username)
+		loginDetails, err = (*database).GetUserLoginDetails(username)
+		if err != nil {
+			api.RequestErrorHandler(w, err)
+			return
+		}
 
 		if loginDetails == nil || (token != (*loginDetails).AuthToken) {
 			log.Error(UnAuthorizedError)

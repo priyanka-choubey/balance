@@ -23,7 +23,7 @@ func GetBalance(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var database *tools.DatabaseInterface
+	var database *tools.MySqlDatabase
 	database, err = tools.NewDatabase()
 	if err != nil {
 		api.InternalErrorHandler(w)
@@ -31,7 +31,11 @@ func GetBalance(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var tokenDetails *tools.CoinDetails
-	tokenDetails = (*database).GetUserCoins(params.Username)
+	tokenDetails, err = (*database).GetUserCoins(params.Username)
+	if err != nil {
+		api.InternalErrorHandler(w)
+		return
+	}
 	if tokenDetails == nil {
 		log.Error(err)
 		api.InternalErrorHandler(w)

@@ -16,6 +16,9 @@ func Handler(r *chi.Mux) {
 		router.Use(middleware.Authorization)
 
 		router.Get("/coins", GetBalance)
+		router.Delete("/delete", DeleteUser)
+		router.Put("/updatetoken", UpdateUserToken)
+		// TODO: router.Put("/update", UpdateAccount)
 	})
 
 	r.Route("/user", func(router chi.Router) {

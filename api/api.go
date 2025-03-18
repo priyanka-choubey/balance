@@ -32,6 +32,17 @@ type UserResponse struct {
 
 	// Token
 	Token string
+
+	// Account Balance
+	Balance int
+}
+
+type Response struct {
+	// Response code
+	Code int
+
+	// Message
+	Message string
 }
 
 type Error struct {

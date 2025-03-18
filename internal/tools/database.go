@@ -53,6 +53,58 @@ func (d *MySqlDatabase) CreateUserLoginDetails(username string, token string) (*
 	return &clientData, nil
 }
 
+func (d *MySqlDatabase) CreateAccountBalanceDetails(username string) (*CoinDetails, error) {
+
+	var clientData CoinDetails
+
+	d.Db.QueryRow("INSERT INTO balance (username) VALUES (?)", username)
+	row := d.Db.QueryRow("SELECT * FROM balance WHERE username = ?", username)
+	if err := row.Scan(&clientData.Username, &clientData.Coins); err != nil {
+		return &clientData, fmt.Errorf("User %d: Cannot create user: %v", username, err)
+	}
+	return &clientData, nil
+}
+
+func (d *MySqlDatabase) DeleteUserLoginDetails(username string) error {
+
+	var clientData LoginDetails
+
+	d.Db.QueryRow("DELETE FROM user WHERE username = ?", username)
+	row := d.Db.QueryRow("SELECT (username,token) FROM user WHERE username = ?", username)
+	if err := row.Scan(&clientData.Username, &clientData.AuthToken); err != nil {
+		return nil
+	}
+	return fmt.Errorf("User %d: Cannot delete user", clientData.Username)
+}
+
+func (d *MySqlDatabase) DeleteAccountBalanceDetails(username string) error {
+
+	var clientData CoinDetails
+
+	d.Db.QueryRow("DELETE FROM balance WHERE username = ?", username)
+	row := d.Db.QueryRow("SELECT * FROM balance WHERE username = ?", username)
+	if err := row.Scan(&clientData.Username, &clientData.Coins); err != nil {
+		return nil
+	}
+	return fmt.Errorf("User %d: Cannot delete user", clientData.Username)
+}
+
+func (d *MySqlDatabase) UpdateUserLoginDetails(username string, token string) error {
+
+	var clientData LoginDetails
+
+	d.Db.QueryRow("UPDATE user SET token = ? WHERE username = ?", token, username)
+	row := d.Db.QueryRow("SELECT username,token FROM user WHERE username = ?", username)
+	if err := row.Scan(&clientData.Username, &clientData.AuthToken); err != nil {
+		return fmt.Errorf("Unexpected Error: %v", err)
+	}
+
+	if clientData.AuthToken != token {
+		return fmt.Errorf("User %d: Cannot update user token", clientData.Username)
+	}
+	return nil
+}
+
 func (d *MySqlDatabase) GetUserLoginDetails(username string) (*LoginDetails, error) {
 
 	var clientData LoginDetails

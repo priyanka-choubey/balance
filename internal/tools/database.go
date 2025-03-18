@@ -41,6 +41,18 @@ func NewDatabase() (*MySqlDatabase, error) {
 	return &database, nil
 }
 
+func (d *MySqlDatabase) CreateUserLoginDetails(username string, token string) (*LoginDetails, error) {
+
+	var clientData LoginDetails
+
+	d.Db.QueryRow("INSERT INTO user (username,token) VALUES (?,?)", username, token)
+	row := d.Db.QueryRow("SELECT username,token FROM user WHERE username = ?", username)
+	if err := row.Scan(&clientData.Username, &clientData.AuthToken); err != nil {
+		return &clientData, fmt.Errorf("User %d: Cannot create user: %v", username, err)
+	}
+	return &clientData, nil
+}
+
 func (d *MySqlDatabase) GetUserLoginDetails(username string) (*LoginDetails, error) {
 
 	var clientData LoginDetails

@@ -18,6 +18,22 @@ type BalanceResponse struct {
 	Balance int
 }
 
+type UserParams struct {
+	Username string
+	Token    string
+}
+
+type UserResponse struct {
+	// Response code
+	Code int
+
+	// Username
+	Username string
+
+	// Token
+	Token string
+}
+
 type Error struct {
 	// Error response code
 	Code int

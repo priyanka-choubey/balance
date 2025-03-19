@@ -55,3 +55,44 @@ func GetBalance(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
+func UpdateAccountBalance(w http.ResponseWriter, r *http.Request) {
+	var params = api.AccountParams{}
+	var decoder *schema.Decoder = schema.NewDecoder()
+	var err error
+
+	err = decoder.Decode(&params, r.URL.Query())
+
+	if err != nil {
+		log.Error(err)
+		api.InternalErrorHandler(w)
+		return
+	}
+
+	var database *tools.MySqlDatabase
+	database, err = tools.NewDatabase()
+	if err != nil {
+		api.InternalErrorHandler(w)
+		return
+	}
+
+	err = (*database).UpdateAccountBalance(params.Username, int(params.Balance))
+	if err != nil {
+		api.InternalErrorHandler(w)
+		return
+	}
+
+	var response = api.Response{
+		Message: "User %s account balance has been updated",
+		Code:    http.StatusOK,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	err = json.NewEncoder(w).Encode(response)
+	if err != nil {
+		log.Error(err)
+		api.InternalErrorHandler(w)
+		return
+	}
+
+}

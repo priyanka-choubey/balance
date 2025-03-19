@@ -10,6 +10,11 @@ type BalanceParams struct {
 	Username string
 }
 
+type AccountParams struct {
+	Username string
+	Balance  int
+}
+
 type BalanceResponse struct {
 	// Response code
 	Code int

@@ -15,7 +15,7 @@ type LoginDetails struct {
 	Username  string
 }
 type CoinDetails struct {
-	Coins    int64
+	Coins    int
 	Username string
 }
 
@@ -130,6 +130,22 @@ func (d *MySqlDatabase) GetUserCoins(username string) (*CoinDetails, error) {
 		return &clientData, fmt.Errorf("User %d: %v", username, err)
 	}
 	return &clientData, nil
+}
+
+func (d *MySqlDatabase) UpdateAccountBalance(username string, balance int) error {
+
+	var clientData CoinDetails
+
+	d.Db.QueryRow("UPDATE balance SET balance = ? WHERE username = ?", balance, username)
+	row := d.Db.QueryRow("SELECT username,balance FROM balance WHERE username = ?", username)
+	if err := row.Scan(&clientData.Username, &clientData.Coins); err != nil {
+		return fmt.Errorf("Unexpected Error: %v", err)
+	}
+
+	if clientData.Coins != balance {
+		return fmt.Errorf("User %d: Cannot update accountbalance", clientData.Username)
+	}
+	return nil
 }
 
 func (d *MySqlDatabase) SetupDatabase() error {
